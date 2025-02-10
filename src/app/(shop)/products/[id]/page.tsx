@@ -1,13 +1,17 @@
+'use client'
+
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { products } from '@/data/products'
 import { Terminal, ChevronRight, ArrowLeft } from 'lucide-react'
+import { useState, use } from 'react'
+import { cn } from '@/lib/utils'
 
 interface ProductPageProps {
-    params: {
+    params: Promise<{
         id: string
-    }
+    }>
 }
 
 interface SpecsType {
@@ -31,12 +35,18 @@ const formatJSON = (obj: SpecsType) => {
     }).join('\n');
 };
 
-export default async function ProductPage({ params }: ProductPageProps) {
-    const product = products.find(p => p.id === params.id)
+const getProduct = (id: string) => {
+    const product = products.find(p => p.id === id)
+    if (!product) notFound()
+    return product
+}
 
-    if (!product) {
-        notFound()
-    }
+export default function ProductPage({ params }: ProductPageProps) {
+    const { id } = use(params)
+    const product = getProduct(id)
+
+    const [selectedWood, setSelectedWood] = useState<string>(product.details.woodOptions[0].name)
+    const [selectedSwitch, setSelectedSwitch] = useState<string>(product.details.switches[0])
 
     const specs = {
         layout: product.details.layout,
@@ -94,9 +104,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
                             <p className="mb-2 font-semibold text-walnut-700">$ ls ./wood-options/</p>
                             <div className="space-y-2">
                                 {product.details.woodOptions.map((wood) => (
-                                    <div
+                                    <button
                                         key={wood.name}
-                                        className="flex items-center justify-between rounded-md bg-neutral-950 px-3 py-2"
+                                        onClick={() => setSelectedWood(wood.name)}
+                                        className={cn(
+                                            "w-full flex items-center justify-between rounded-md bg-neutral-950 px-3 py-2 transition-all",
+                                            "hover:ring-2 hover:ring-neutral-700 focus:outline-none focus:ring-2 focus:ring-walnut-500",
+                                            selectedWood === wood.name && "ring-2 ring-walnut-500"
+                                        )}
+                                        aria-pressed={selectedWood === wood.name}
                                     >
                                         <div>
                                             <span className="font-medium text-neutral-200">{wood.name}</span>
@@ -105,7 +121,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                                         <div className="font-mono text-sm text-walnut-700">
                                             +£{wood.priceModifier}
                                         </div>
-                                    </div>
+                                    </button>
                                 ))}
                             </div>
                         </div>
@@ -114,20 +130,26 @@ export default async function ProductPage({ params }: ProductPageProps) {
                             <p className="mb-2 font-semibold text-walnut-700">$ ls ./switches/</p>
                             <div className="space-y-1">
                                 {product.details.switches.map((switch_) => (
-                                    <div
+                                    <button
                                         key={switch_}
-                                        className="flex items-center gap-2 rounded-md bg-neutral-950 px-3 py-2 text-neutral-300"
+                                        onClick={() => setSelectedSwitch(switch_)}
+                                        className={cn(
+                                            "w-full flex items-center gap-2 rounded-md bg-neutral-950 px-3 py-2 text-neutral-300 transition-all",
+                                            "hover:ring-2 hover:ring-neutral-700 focus:outline-none focus:ring-2 focus:ring-walnut-500",
+                                            selectedSwitch === switch_ && "ring-2 ring-walnut-500"
+                                        )}
+                                        aria-pressed={selectedSwitch === switch_}
                                     >
                                         <ChevronRight className="h-3 w-3" />
                                         {switch_}
-                                    </div>
+                                    </button>
                                 ))}
                             </div>
                         </div>
                     </div>
 
                     <button className="w-full rounded-lg bg-walnut-500 px-4 py-3 font-medium text-neutral-50 transition-colors hover:bg-walnut-700">
-                        Initialize Build Configuration_
+                        Add to Cart
                     </button>
                 </div>
             </div>

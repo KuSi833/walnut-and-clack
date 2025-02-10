@@ -47,15 +47,13 @@ export function Header() {
                         <Link
                             key={item.href}
                             href={item.href}
-                            className="flex items-center gap-2 font-mono text-sm text-walnut-700 transition-colors hover:text-walnut-900"
+                            className="flex items-center gap-2 font-mono text-sm text-walnut-800 transition-colors hover:text-walnut-900"
                         >
                             <item.icon className="h-5 w-5" />
-                            <span className="hidden sm:inline-block">{item.name}</span>
-                            {item.name === 'cart' && itemCount > 0 && (
-                                <span className="hidden rounded-full bg-walnut-100 px-2 py-1 text-xs sm:inline-block">
-                                    {itemCount}
-                                </span>
-                            )}
+                            <span className="hidden sm:inline-block">
+                                {item.name}
+                                {item.name === 'cart' && `_${itemCount}`}
+                            </span>
                         </Link>
                     ))}
                 </nav>
