@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { SITE_CONFIG } from '@/lib/constants/config'
-import { Store, Terminal, ShoppingBag, Code, LogIn, LogOut, User } from 'lucide-react'
+import { Store, Terminal, ShoppingBag, LogIn, LogOut, User } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
 
@@ -21,31 +21,27 @@ const navigationItems = [
 
 export function Header() {
     const [itemCount, setItemCount] = useState(0)
-    const { data: session, status } = useSession()
+    const { data: session } = useSession()
 
     useEffect(() => {
-        console.log('Auth Status:', status)
-        console.log('Session:', session)
-        if (status === 'loading') {
-            console.log('Loading authentication state...')
+        async function fetchCartCount() {
+            try {
+                const response = await fetch('/api/cart')
+                if (!response.ok) throw new Error('Failed to fetch cart')
+                const items = await response.json()
+                setItemCount(items.length)
+            } catch (error) {
+                console.error('Error fetching cart count:', error)
+                setItemCount(0)
+            }
         }
-        if (status === 'authenticated' && session) {
-            console.log('Successfully authenticated:', {
-                name: session.user?.name,
-                email: session.user?.email
-            })
-        }
-        if (status === 'unauthenticated') {
-            console.log('Not authenticated')
-        }
-    }, [session, status])
 
-    // Update this effect to use your actual cart management system
-    useEffect(() => {
-        // Example: Get cart items from localStorage
-        const cartItems = JSON.parse(localStorage.getItem('cart') || '[]')
-        setItemCount(cartItems.length)
-    }, [])
+        if (session?.user) {
+            fetchCartCount()
+        } else {
+            setItemCount(0)
+        }
+    }, [session])
 
     const handleSignIn = async () => {
         try {

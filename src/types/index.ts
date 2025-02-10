@@ -1,7 +1,6 @@
 // Base product type with all common properties
 export type Product = {
   id: string
-  productType: string
   name: string
   description: string
   price: number
@@ -12,38 +11,31 @@ export type Product = {
   }
 }
 
-export type KeyboardBuildTemplate = Product & {
-  productType: 'keyboard-build-template'
-  availableCases: KeyboardCase[]
-  availableSwitches: KeyboardSwitch[]
-  features: string[]
-}
-
-export type ConfiguredKeyboardBuild = Product & {
-  productType: 'keyboard-build'
-  selectedCase: KeyboardCase
-  selectedWoodOption: WoodOption
-  selectedSwitch: KeyboardSwitch
-  features: string[]
-}
-
 export type WoodOption = {
   name: string
   description: string
   priceModifier: number
 }
 
-export type KeyboardCase = {
-  productType: 'case'
-  layout: KeyboardLayout
-  woodOptions: WoodOption[]
-}
-
-export type KeyboardSwitch = 'Cherry MX Brown' | 'Cherry MX Blue' | 'Cherry MX Red'
-
 export type KeyboardLayout = '60%' | '65%' | '75%' | 'TKL' | 'Full'
 
+// Base keyboard case design
+export type KeyboardCaseDesign = Product & {
+  layout: KeyboardLayout
+  woodOptions: WoodOption[]
+  features: string[]
+}
+
+// A configured build of a keyboard case with selected options
+export type KeyboardCaseBuild = {
+  id: string
+  caseDesign: KeyboardCaseDesign
+  selectedWoodOption: WoodOption
+  totalPrice: number
+}
+
 export type User = {
+  id: string
   email: string
   name?: string
   orders: Order[]
@@ -52,13 +44,16 @@ export type User = {
 export type Order = {
   id: string
   userId: string
-  products: (Product | KeyboardCase)[]
+  products: KeyboardCaseBuild[]
   status: 'pending' | 'processing' | 'shipped' | 'delivered'
   createdAt: Date
   total: number
 }
 
 export type CartItem = {
-  product: ConfiguredKeyboardBuild
+  id: string
+  userId: string
+  buildId: string
   quantity: number
+  build: KeyboardCaseBuild
 } 

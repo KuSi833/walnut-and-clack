@@ -3,81 +3,149 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { keyboards_cases } from '@/data/products'
-import { Terminal, ChevronRight, ArrowLeft } from 'lucide-react'
-import { useState, use } from 'react'
+import { Terminal, ArrowLeft } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { CartItem, KeyboardBuildTemplate, KeyboardSwitch, ConfiguredKeyboardBuild, WoodOption } from '@/types'
+import { KeyboardCaseDesign, WoodOption } from '@/types'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 interface ProductPageProps {
-    params: Promise<{
-        id: string
-    }>
+    params: Promise<{ id: string }>
 }
 
 interface SpecsType {
-    layout: string;
-    base_price: number;
-    features: string[];
+    layout: string
+    base_price: number
+    features: string[]
 }
 
 const formatJSON = (obj: SpecsType) => {
-    const jsonString = JSON.stringify(obj, null, 4);
+    const jsonString = JSON.stringify(obj, null, 4)
     return jsonString.split('\n').map(line => {
         if (line.includes(':')) {
-            const [key, value] = line.split(':');
-            return `${key}:<span class="text-neutral-50">${value}</span>`;
+            const [key, value] = line.split(':')
+            return `${key}:<span class="text-neutral-50">${value}</span>`
         }
         if (line.includes('{') || line.includes('}') || line.includes('[') || line.includes(']')) {
-            return `<span class="text-neutral-400">${line}</span>`;
+            return `<span class="text-neutral-400">${line}</span>`
         }
-        return line;
-    }).join('\n');
-};
-
-const getProduct = (id: string): KeyboardBuildTemplate => {
-    const product = keyboards_cases.find(p => p.id === id)
-    if (!product) notFound()
-    return product
+        return line
+    }).join('\n')
 }
 
 export default function ProductPage({ params }: ProductPageProps) {
-    const { id } = use(params)
-    const product = getProduct(id)
+    const { data: session } = useSession()
+    const router = useRouter()
+    const [caseDesign, setCaseDesign] = useState<KeyboardCaseDesign | null>(null)
+    const [selectedWood, setSelectedWood] = useState<WoodOption | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
-    const [selectedCase] = useState(product.availableCases[0])
-    const [selectedWood, setSelectedWood] = useState<string>(selectedCase.woodOptions[0].name)
-    const [selectedSwitch, setSelectedSwitch] = useState<KeyboardSwitch>(product.availableSwitches[0])
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const { id } = await params
+                const response = await fetch(`/api/products/${id}`)
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        notFound()
+                    }
+                    throw new Error('Failed to fetch product')
+                }
+                const data = await response.json()
+                setCaseDesign(data)
+                // Set the default wood option
+                if (data.woodOptions && data.woodOptions.length > 0) {
+                    setSelectedWood(data.woodOptions[0])
+                }
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'An error occurred')
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchProduct()
+    }, [params]) // Keep params in deps array as it's stable
 
-    const specs = {
-        layout: selectedCase.layout,
-        base_price: product.price,
-        features: product.features
-    };
+    if (isLoading) {
+        return (
+            <div className="container py-8">
+                <div className="flex items-center justify-center">
+                    <div className="text-lg">Loading...</div>
+                </div>
+            </div>
+        )
+    }
 
-    const handleAddToCart = () => {
-        const selectedWoodOption = selectedCase.woodOptions.find((w: WoodOption) => w.name === selectedWood)
-        if (!selectedWoodOption) return
+    if (error) {
+        return (
+            <div className="container py-8">
+                <div className="flex items-center justify-center">
+                    <div className="text-lg text-red-500">{error}</div>
+                </div>
+            </div>
+        )
+    }
 
-        const cartItem: CartItem = {
-            product: {
-                ...product,
-                productType: 'keyboard-build',
-                selectedCase,
-                selectedWoodOption,
-                selectedSwitch
-            } as ConfiguredKeyboardBuild,
-            quantity: 1
+    if (!caseDesign) {
+        return notFound()
+    }
+
+    const specs: SpecsType = {
+        layout: caseDesign.layout,
+        base_price: Number(caseDesign.price),
+        features: caseDesign.features
+    }
+
+    const handleAddToCart = async () => {
+        if (!session) {
+            router.push('/auth/signin')
+            return
         }
 
-        // Get existing cart
-        const existingCart = JSON.parse(localStorage.getItem('cart') || '[]')
+        if (!selectedWood) return
 
-        // Add new item
-        localStorage.setItem('cart', JSON.stringify([...existingCart, cartItem]))
+        try {
+            // Create a keyboard case build
+            const response = await fetch('/api/builds', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    caseDesignId: caseDesign.id,
+                    selectedWoodOption: selectedWood,
+                    totalPrice: Number(caseDesign.price) + selectedWood.priceModifier,
+                }),
+            })
 
-        // Force a page refresh to update the cart count in the header
-        window.location.reload()
+            if (!response.ok) {
+                throw new Error('Failed to create build')
+            }
+
+            const build = await response.json()
+
+            // Add to cart
+            const cartResponse = await fetch('/api/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    buildId: build.id,
+                    quantity: 1,
+                }),
+            })
+
+            if (!cartResponse.ok) {
+                throw new Error('Failed to add to cart')
+            }
+
+            router.push('/cart')
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to add to cart')
+        }
     }
 
     return (
@@ -96,8 +164,8 @@ export default function ProductPage({ params }: ProductPageProps) {
                 {/* Image Section */}
                 <div className="relative aspect-square overflow-hidden rounded-lg border border-neutral-700 bg-neutral-800">
                     <Image
-                        src={product.images.full[0]}
-                        alt={product.name}
+                        src={caseDesign.images.full[0]}
+                        alt={caseDesign.name}
                         fill
                         className="object-cover"
                     />
@@ -107,13 +175,13 @@ export default function ProductPage({ params }: ProductPageProps) {
                 <div className="space-y-6 rounded-lg border border-neutral-700 bg-cream-100 p-6 shadow-lg relative z-30">
                     <div className="flex items-center gap-2 border-b border-neutral-700 pb-4">
                         <Terminal className="h-5 w-5 text-walnut-800" />
-                        <h1 className="text-2xl font-bold text-walnut-800">{product.name}</h1>
+                        <h1 className="text-2xl font-bold text-walnut-800">{caseDesign.name}</h1>
                     </div>
 
                     <div className="space-y-4 text-sm">
                         <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
                             <p className="mb-2 font-semibold text-walnut-700">$ cat description.txt</p>
-                            <p className="text-neutral-300">{product.description}</p>
+                            <p className="text-neutral-300">{caseDesign.description}</p>
                         </div>
 
                         <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
@@ -129,16 +197,16 @@ export default function ProductPage({ params }: ProductPageProps) {
                         <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
                             <p className="mb-2 font-semibold text-walnut-700">$ ls ./wood-options/</p>
                             <div className="space-y-2">
-                                {selectedCase.woodOptions.map((wood: WoodOption) => (
+                                {caseDesign.woodOptions.map((wood: WoodOption) => (
                                     <button
                                         key={wood.name}
-                                        onClick={() => setSelectedWood(wood.name)}
+                                        onClick={() => setSelectedWood(wood)}
                                         className={cn(
                                             "w-full flex items-center justify-between rounded-md bg-neutral-950 px-3 py-2 transition-all",
                                             "hover:ring-2 hover:ring-neutral-700 focus:outline-none focus:ring-2 focus:ring-walnut-500",
-                                            selectedWood === wood.name && "ring-2 ring-walnut-500"
+                                            selectedWood?.name === wood.name && "ring-2 ring-walnut-500"
                                         )}
-                                        aria-pressed={selectedWood === wood.name}
+                                        aria-pressed={selectedWood?.name === wood.name}
                                     >
                                         <div>
                                             <span className="font-medium text-neutral-200">{wood.name}</span>
@@ -151,34 +219,13 @@ export default function ProductPage({ params }: ProductPageProps) {
                                 ))}
                             </div>
                         </div>
-
-                        <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
-                            <p className="mb-2 font-semibold text-walnut-700">$ ls ./switches/</p>
-                            <div className="space-y-1">
-                                {product.availableSwitches.map((switch_: KeyboardSwitch) => (
-                                    <button
-                                        key={switch_}
-                                        onClick={() => setSelectedSwitch(switch_)}
-                                        className={cn(
-                                            "w-full flex items-center gap-2 rounded-md bg-neutral-950 px-3 py-2 text-neutral-300 transition-all",
-                                            "hover:ring-2 hover:ring-neutral-700 focus:outline-none focus:ring-2 focus:ring-walnut-500",
-                                            selectedSwitch === switch_ && "ring-2 ring-walnut-500"
-                                        )}
-                                        aria-pressed={selectedSwitch === switch_}
-                                    >
-                                        <ChevronRight className="h-3 w-3" />
-                                        {switch_}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
                     </div>
 
                     <button
                         onClick={handleAddToCart}
                         className="w-full rounded-lg bg-walnut-500 px-4 py-3 font-medium text-neutral-50 transition-colors hover:bg-walnut-700"
                     >
-                        Add to Cart
+                        Add to Cart (£{Number(caseDesign.price) + (selectedWood?.priceModifier || 0)})
                     </button>
                 </div>
             </div>

@@ -3,53 +3,70 @@
 import { useEffect, useState } from 'react'
 import { CartItem } from '@/types'
 import { KeyboardBuildCartItem } from '@/components/cart/keyboard-build-cart-item'
-import { ProductCartItem } from '@/components/cart/product-cart-item'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 export default function CartPage() {
     const [cartItems, setCartItems] = useState<CartItem[]>([])
     const [total, setTotal] = useState<number>(0)
+    const { data: session } = useSession()
+    const router = useRouter()
 
     useEffect(() => {
-        // Load cart items from localStorage
-        const items = JSON.parse(localStorage.getItem('cart') || '[]')
-        setCartItems(items)
+        async function fetchCartItems() {
+            try {
+                const response = await fetch('/api/cart')
+                if (!response.ok) throw new Error('Failed to fetch cart')
+                const items = await response.json()
+                setCartItems(items)
 
-        // Calculate total
-        const newTotal = items.reduce((sum: number, item: CartItem) =>
-            sum + (item.product.price * item.quantity), 0)
-        setTotal(newTotal)
-    }, [])
-
-    const handleRemoveItem = (index: number) => {
-        const newItems = cartItems.filter((_, i) => i !== index)
-        localStorage.setItem('cart', JSON.stringify(newItems))
-        setCartItems(newItems)
-
-        // Update total
-        const newTotal = newItems.reduce((sum: number, item: CartItem) =>
-            sum + (item.product.price * item.quantity), 0)
-        setTotal(newTotal)
-
-        // Force header cart count update
-        window.location.reload()
-    }
-
-    const renderCartItem = (item: CartItem, index: number) => {
-        if (item.product.productType === 'keyboard-build') {
-            return (
-                <KeyboardBuildCartItem
-                    key={`${item.product.id}-${index}`}
-                    item={item}
-                    onRemove={() => handleRemoveItem(index)}
-                />
-            )
+                // Calculate total
+                const newTotal = items.reduce((sum: number, item: CartItem) =>
+                    sum + (item.build.totalPrice * item.quantity), 0)
+                setTotal(newTotal)
+            } catch (error) {
+                console.error('Error fetching cart:', error)
+            }
         }
 
+        if (session?.user) {
+            fetchCartItems()
+        }
+    }, [session])
+
+    const handleRemoveItem = async (buildId: string) => {
+        try {
+            const response = await fetch(`/api/cart/${buildId}`, {
+                method: 'DELETE',
+            })
+
+            if (!response.ok) throw new Error('Failed to remove item')
+
+            // Refresh the cart items
+            const updatedResponse = await fetch('/api/cart')
+            if (!updatedResponse.ok) throw new Error('Failed to fetch updated cart')
+
+            const updatedItems = await updatedResponse.json()
+            setCartItems(updatedItems)
+
+            // Update total
+            const newTotal = updatedItems.reduce((sum: number, item: CartItem) =>
+                sum + (item.build.totalPrice * item.quantity), 0)
+            setTotal(newTotal)
+
+            // Refresh the page to update header
+            router.refresh()
+        } catch (error) {
+            console.error('Error removing item:', error)
+        }
+    }
+
+    const renderCartItem = (item: CartItem) => {
         return (
-            <ProductCartItem
-                key={`${item.product.id}-${index}`}
+            <KeyboardBuildCartItem
+                key={item.id}
                 item={item}
-                onRemove={() => handleRemoveItem(index)}
+                onRemove={() => handleRemoveItem(item.buildId)}
             />
         )
     }
@@ -63,7 +80,7 @@ export default function CartPage() {
                 ) : (
                     <div className="space-y-8">
                         <div className="space-y-4">
-                            {cartItems.map((item, index) => renderCartItem(item, index))}
+                            {cartItems.map((item) => renderCartItem(item))}
                         </div>
                         <div className="rounded-lg border border-walnut-200 bg-cream-50 p-6">
                             <div className="flex items-center justify-between">

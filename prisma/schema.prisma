@@ -7,34 +7,108 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Product {
-  id          String   @id @default(cuid())
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model KeyboardCaseDesign {
+  id          String              @id @default(cuid())
   name        String
   description String
   price       Decimal
-  imageUrl    String
-  category    String
-  inStock     Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  layout      String // Will store KeyboardLayout as string
+  tags        String[] // Array of tags
+  features    String[] // Array of features
+  images      Json // Will store the images object
+  woodOptions Json[] // Will store array of WoodOption objects
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  builds      KeyboardCaseBuild[]
+}
+
+model KeyboardCaseBuild {
+  id                 String             @id @default(cuid())
+  caseDesign         KeyboardCaseDesign @relation(fields: [caseDesignId], references: [id])
+  caseDesignId       String
+  selectedWoodOption Json // Will store WoodOption object
+  totalPrice         Decimal
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  orderItems         OrderItem[]
+  cartItems          CartItem[]
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
+  id            String     @id @default(cuid())
+  name          String?
+  email         String?    @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  orders        Order[]
+  cart          CartItem[]
 }
 
 model Order {
-  id        String   @id @default(cuid())
-  user      User     @relation(fields: [userId], references: [id])
+  id        String      @id @default(cuid())
+  user      User        @relation(fields: [userId], references: [id])
   userId    String
+  items     OrderItem[]
   total     Decimal
   status    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model OrderItem {
+  id              String            @id @default(cuid())
+  order           Order             @relation(fields: [orderId], references: [id])
+  orderId         String
+  build           KeyboardCaseBuild @relation(fields: [buildId], references: [id])
+  buildId         String
+  quantity        Int
+  priceAtPurchase Decimal
+}
+
+model CartItem {
+  id       String            @id @default(cuid())
+  user     User              @relation(fields: [userId], references: [id])
+  userId   String
+  build    KeyboardCaseBuild @relation(fields: [buildId], references: [id])
+  buildId  String
+  quantity Int
 }

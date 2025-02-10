@@ -1,38 +1,33 @@
-import { KeyboardBuildTemplate } from "@/types";
+import { KeyboardCaseDesign } from "@/types";
 
-export const keyboards_cases: KeyboardBuildTemplate[] = [
+export const keyboards_cases: KeyboardCaseDesign[] = [
     {
         id: 'cascade',
         name: 'The Cascade',
-        productType: 'keyboard-build-template',
         description: 'Inspired by the flowing lines of Pacific Northwest waterfalls, this 65% keyboard brings nature to your desk.',
         price: 249.99,
+        layout: '65%',
         images: {
             thumbnail: '/products/kb1.png',
             full: ['/products/kb1.png']
         },
-        availableCases: [{
-            productType: 'case',
-            layout: '65%',
-            woodOptions: [
-                {
-                    name: 'Walnut', 
-                    description: 'Rich, dark tones with straight grain',
-                    priceModifier: 0
-                },
-                {
-                    name: 'Maple',
-                    description: 'Light, creamy colour with subtle grain', 
-                    priceModifier: 20
-                },
-                {
-                    name: 'Cherry',
-                    description: 'Warm reddish-brown with fine grain',
-                    priceModifier: 30
-                }
-            ]
-        }],
-        availableSwitches: ['Cherry MX Brown', 'Cherry MX Blue', 'Cherry MX Red'],
+        woodOptions: [
+            {
+                name: 'Walnut', 
+                description: 'Rich, dark tones with straight grain',
+                priceModifier: 0
+            },
+            {
+                name: 'Maple',
+                description: 'Light, creamy colour with subtle grain', 
+                priceModifier: 20
+            },
+            {
+                name: 'Cherry',
+                description: 'Warm reddish-brown with fine grain',
+                priceModifier: 30
+            }
+        ],
         features: [
             'Hot-swappable switches',
             'USB-C connection',
@@ -44,35 +39,30 @@ export const keyboards_cases: KeyboardBuildTemplate[] = [
     {
         id: 'summit',
         name: 'The Summit', 
-        productType: 'keyboard-build-template',
         description: 'A TKL masterpiece that represents the peak of wooden keyboard craftsmanship.',
         price: 299.99,
+        layout: 'TKL',
         images: {
             thumbnail: '/products/kb2.png',
             full: ['/products/kb2.png']
         },
-        availableCases: [{
-            productType: 'case',
-            layout: 'TKL',
-            woodOptions: [
-                {
-                    name: 'Walnut',
-                    description: 'Rich, dark tones with straight grain',
-                    priceModifier: 0
-                },
-                {
-                    name: 'Oak', 
-                    description: 'Light brown with prominent grain patterns',
-                    priceModifier: 25
-                },
-                {
-                    name: 'Zebra Wood',
-                    description: 'Exotic striped pattern with unique character',
-                    priceModifier: 50
-                }
-            ]
-        }],
-        availableSwitches: ['Cherry MX Brown', 'Cherry MX Blue', 'Cherry MX Red'],
+        woodOptions: [
+            {
+                name: 'Walnut',
+                description: 'Rich, dark tones with straight grain',
+                priceModifier: 0
+            },
+            {
+                name: 'Oak', 
+                description: 'Light brown with prominent grain patterns',
+                priceModifier: 25
+            },
+            {
+                name: 'Zebra Wood',
+                description: 'Exotic striped pattern with unique character',
+                priceModifier: 50
+            }
+        ],
         features: [
             'Hot-swappable switches',
             'USB-C connection',

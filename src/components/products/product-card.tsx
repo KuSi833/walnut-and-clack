@@ -1,10 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Star, Users } from 'lucide-react'
-import { KeyboardBuildTemplate } from '@/types'
+import { KeyboardCaseDesign } from '@/types'
 
 interface ProductCardProps {
-    product: KeyboardBuildTemplate
+    product: KeyboardCaseDesign
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
@@ -57,7 +57,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                             </span>
                         ))}
                         <span className="rounded-full bg-cream-200 px-2 py-0.5 text-xs text-walnut-700">
-                            {product.availableCases[0].layout}
+                            {product.layout}
                         </span>
                     </div>
                 </div>
