@@ -3,6 +3,7 @@ import { Fira_Code } from 'next/font/google'
 import { SITE_CONFIG } from '@/lib/constants/config'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { AuthProvider } from '@/components/providers/session-provider'
 import './globals.css'
 
 const firaCode = Fira_Code({ subsets: ['latin'] })
@@ -23,9 +24,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={`${firaCode.className} flex min-h-screen flex-col bg-cream-100 text-walnut-900`}>
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <AuthProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   )
