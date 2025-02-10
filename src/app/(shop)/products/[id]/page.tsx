@@ -68,20 +68,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
 
                 {/* Info Section */}
-                <div className="space-y-6 rounded-lg border border-neutral-700 bg-neutral-800 p-6">
+                <div className="space-y-6 rounded-lg border border-neutral-700 bg-cream-100 p-6 shadow-lg relative z-30">
                     <div className="flex items-center gap-2 border-b border-neutral-700 pb-4">
-                        <Terminal className="h-5 w-5 text-neutral-200" />
-                        <h1 className="text-2xl font-bold text-neutral-50">{product.name}</h1>
+                        <Terminal className="h-5 w-5 text-walnut-800" />
+                        <h1 className="text-2xl font-bold text-walnut-800">{product.name}</h1>
                     </div>
 
                     <div className="space-y-4 text-sm">
                         <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
-                            <p className="mb-2 font-semibold text-amber-500">$ cat description.txt</p>
+                            <p className="mb-2 font-semibold text-walnut-700">$ cat description.txt</p>
                             <p className="text-neutral-300">{product.description}</p>
                         </div>
 
                         <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
-                            <p className="mb-2 font-semibold text-amber-500">$ cat specs.json</p>
+                            <p className="mb-2 font-semibold text-walnut-700">$ cat specs.json</p>
                             <pre
                                 className="overflow-x-auto rounded bg-neutral-950 p-3 text-neutral-400"
                                 dangerouslySetInnerHTML={{
@@ -91,7 +91,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         </div>
 
                         <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
-                            <p className="mb-2 font-semibold text-amber-500">$ ls ./wood-options/</p>
+                            <p className="mb-2 font-semibold text-walnut-700">$ ls ./wood-options/</p>
                             <div className="space-y-2">
                                 {product.details.woodOptions.map((wood) => (
                                     <div
@@ -102,7 +102,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                                             <span className="font-medium text-neutral-200">{wood.name}</span>
                                             <p className="text-xs text-neutral-400">{wood.description}</p>
                                         </div>
-                                        <div className="font-mono text-sm text-amber-500">
+                                        <div className="font-mono text-sm text-walnut-700">
                                             +£{wood.priceModifier}
                                         </div>
                                     </div>
@@ -111,7 +111,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         </div>
 
                         <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
-                            <p className="mb-2 font-semibold text-amber-500">$ ls ./switches/</p>
+                            <p className="mb-2 font-semibold text-walnut-700">$ ls ./switches/</p>
                             <div className="space-y-1">
                                 {product.details.switches.map((switch_) => (
                                     <div
@@ -126,7 +126,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         </div>
                     </div>
 
-                    <button className="w-full rounded-lg bg-amber-600 px-4 py-3 font-medium text-neutral-50 transition-colors hover:bg-amber-500">
+                    <button className="w-full rounded-lg bg-walnut-500 px-4 py-3 font-medium text-neutral-50 transition-colors hover:bg-walnut-700">
                         Initialize Build Configuration_
                     </button>
                 </div>
