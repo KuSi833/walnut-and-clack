@@ -46,13 +46,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
     return (
         <div className="container py-8 font-mono">
-            <Link
-                href="/products"
-                className="mb-8 inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-sm text-neutral-200 transition-colors hover:bg-neutral-700"
-            >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Store
-            </Link>
+            <div className="flex justify-end mb-8">
+                <Link
+                    href="/products"
+                    className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-sm text-neutral-200 transition-colors hover:bg-neutral-700"
+                >
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to Store
+                </Link>
+            </div>
 
             <div className="grid gap-8 lg:grid-cols-2">
                 {/* Image Section */}
