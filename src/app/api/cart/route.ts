@@ -56,7 +56,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json(cartItem)
     } catch (error) {
-        console.error('Error adding to cart:', error)
+        console.error('Error adding to cart:', error instanceof Error ? error.message : 'Unknown error')
         return new NextResponse('Internal Error', { status: 500 })
     }
 }

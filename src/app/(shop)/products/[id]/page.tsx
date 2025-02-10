@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { KeyboardCaseDesign, WoodOption } from '@/types'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { useCart } from '@/contexts/cart-context'
 
 interface ProductPageProps {
     params: Promise<{ id: string }>
@@ -41,6 +42,7 @@ export default function ProductPage({ params }: ProductPageProps) {
     const [selectedWood, setSelectedWood] = useState<WoodOption | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const { addToCart } = useCart()
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -104,7 +106,7 @@ export default function ProductPage({ params }: ProductPageProps) {
             return
         }
 
-        if (!selectedWood) return
+        if (!selectedWood || !caseDesign) return
 
         try {
             // Create a keyboard case build
@@ -126,22 +128,8 @@ export default function ProductPage({ params }: ProductPageProps) {
 
             const build = await response.json()
 
-            // Add to cart
-            const cartResponse = await fetch('/api/cart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    buildId: build.id,
-                    quantity: 1,
-                }),
-            })
-
-            if (!cartResponse.ok) {
-                throw new Error('Failed to add to cart')
-            }
-
+            // Add to cart with optimistic updates
+            await addToCart(build)
             router.push('/cart')
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to add to cart')

@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { SITE_CONFIG } from '@/lib/constants/config'
 import { Store, Terminal, ShoppingBag, LogIn, LogOut, User } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
+import { useCart } from '@/contexts/cart-context'
 
 const navigationItems = [
     {
@@ -20,28 +20,8 @@ const navigationItems = [
 ]
 
 export function Header() {
-    const [itemCount, setItemCount] = useState(0)
     const { data: session } = useSession()
-
-    useEffect(() => {
-        async function fetchCartCount() {
-            try {
-                const response = await fetch('/api/cart')
-                if (!response.ok) throw new Error('Failed to fetch cart')
-                const items = await response.json()
-                setItemCount(items.length)
-            } catch (error) {
-                console.error('Error fetching cart count:', error)
-                setItemCount(0)
-            }
-        }
-
-        if (session?.user) {
-            fetchCartCount()
-        } else {
-            setItemCount(0)
-        }
-    }, [session])
+    const { itemCount } = useCart()
 
     const handleSignIn = async () => {
         try {
