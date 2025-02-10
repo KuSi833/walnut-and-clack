@@ -1,0 +1,37 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Prisma Studio",
+            "type": "shell",
+            "command": "npx prisma studio",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            },
+            "icon": {
+                "color": "terminal.ansiBlue",
+                "id": "database"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Dev Server",
+            "type": "shell",
+            "command": "npm run dev",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            },
+            "icon": {
+                "color": "terminal.ansiBlue",
+                "id": "play"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        }
+    ]
+}
