@@ -3,10 +3,11 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { products } from '@/data/products'
+import { keyboards_cases } from '@/data/products'
 import { Terminal, ChevronRight, ArrowLeft } from 'lucide-react'
 import { useState, use } from 'react'
 import { cn } from '@/lib/utils'
+import { CartItem, KeyboardBuild, KeyboardSwitch } from '@/types'
 
 interface ProductPageProps {
     params: Promise<{
@@ -20,22 +21,9 @@ interface SpecsType {
     features: string[];
 }
 
-interface CartItem {
-    id: string
-    name: string
-    price: number
-    woodOption: {
-        name: string
-        priceModifier: number
-    }
-    switchType: string
-    image: string
-}
-
 const formatJSON = (obj: SpecsType) => {
     const jsonString = JSON.stringify(obj, null, 4);
     return jsonString.split('\n').map(line => {
-        // Handle different parts of the JSON
         if (line.includes(':')) {
             const [key, value] = line.split(':');
             return `${key}:<span class="text-neutral-50">${value}</span>`;
@@ -47,8 +35,8 @@ const formatJSON = (obj: SpecsType) => {
     }).join('\n');
 };
 
-const getProduct = (id: string) => {
-    const product = products.find(p => p.id === id)
+const getProduct = (id: string): KeyboardBuild => {
+    const product = keyboards_cases.find(p => p.id === id)
     if (!product) notFound()
     return product
 }
@@ -57,29 +45,22 @@ export default function ProductPage({ params }: ProductPageProps) {
     const { id } = use(params)
     const product = getProduct(id)
 
-    const [selectedWood, setSelectedWood] = useState<string>(product.details.woodOptions[0].name)
-    const [selectedSwitch, setSelectedSwitch] = useState<string>(product.details.switches[0])
+    const [selectedWood, setSelectedWood] = useState<string>(product.keyboardCase.woodOptions[0].name)
+    const [selectedSwitch, setSelectedSwitch] = useState<KeyboardSwitch>(product.switches[0])
 
     const specs = {
-        layout: product.details.layout,
+        layout: product.keyboardCase.layout,
         base_price: product.price,
-        features: product.details.features
+        features: product.features
     };
 
     const handleAddToCart = () => {
-        const selectedWoodOption = product.details.woodOptions.find(w => w.name === selectedWood)
+        const selectedWoodOption = product.keyboardCase.woodOptions.find(w => w.name === selectedWood)
         if (!selectedWoodOption) return
 
         const cartItem: CartItem = {
-            id: product.id,
-            name: product.name,
-            price: product.price + selectedWoodOption.priceModifier,
-            woodOption: {
-                name: selectedWood,
-                priceModifier: selectedWoodOption.priceModifier
-            },
-            switchType: selectedSwitch,
-            image: product.images.thumbnail
+            product: product,
+            quantity: 1
         }
 
         // Get existing cart
@@ -141,7 +122,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                         <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
                             <p className="mb-2 font-semibold text-walnut-700">$ ls ./wood-options/</p>
                             <div className="space-y-2">
-                                {product.details.woodOptions.map((wood) => (
+                                {product.keyboardCase.woodOptions.map((wood) => (
                                     <button
                                         key={wood.name}
                                         onClick={() => setSelectedWood(wood.name)}
@@ -167,7 +148,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                         <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
                             <p className="mb-2 font-semibold text-walnut-700">$ ls ./switches/</p>
                             <div className="space-y-1">
-                                {product.details.switches.map((switch_) => (
+                                {product.switches.map((switch_) => (
                                     <button
                                         key={switch_}
                                         onClick={() => setSelectedSwitch(switch_)}

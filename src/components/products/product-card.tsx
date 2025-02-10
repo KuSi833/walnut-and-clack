@@ -1,10 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Star, Users } from 'lucide-react'
-import { Product } from '@/types/product'
+import { KeyboardBuild } from '@/types'
 
 interface ProductCardProps {
-    product: Product
+    product: KeyboardBuild
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
@@ -48,7 +48,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
-                        {product.details.features.slice(0, 2).map((feature) => (
+                        {product.features.slice(0, 2).map((feature) => (
                             <span
                                 key={feature}
                                 className="rounded-full bg-cream-200 px-2 py-0.5 text-xs text-walnut-700"
@@ -56,6 +56,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                                 {feature}
                             </span>
                         ))}
+                        <span className="rounded-full bg-cream-200 px-2 py-0.5 text-xs text-walnut-700">
+                            {product.keyboardCase.layout}
+                        </span>
                     </div>
                 </div>
             </div>

@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { Product } from '@/types/product'
+import { KeyboardBuild } from '@/types'
 import { ChevronDown, ShoppingCart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ProductCardActionsProps {
-    product: Product
+    product: KeyboardBuild
 }
 
 export const ProductCardActions = ({ product }: ProductCardActionsProps) => {
@@ -14,6 +14,22 @@ export const ProductCardActions = ({ product }: ProductCardActionsProps) => {
 
     const handleToggle = () => {
         setIsExpanded(!isExpanded)
+    }
+
+    const handleAddToCart = () => {
+        const cartItem = {
+            product: product,
+            quantity: 1
+        }
+
+        // Get existing cart
+        const existingCart = JSON.parse(localStorage.getItem('cart') || '[]')
+
+        // Add new item
+        localStorage.setItem('cart', JSON.stringify([...existingCart, cartItem]))
+
+        // Force a page refresh to update the cart count in the header
+        window.location.reload()
     }
 
     return (
@@ -35,30 +51,45 @@ export const ProductCardActions = ({ product }: ProductCardActionsProps) => {
             {isExpanded && (
                 <div className="mt-4 space-y-3 border-t border-walnut/10 pt-4">
                     <div>
-                        <h4 className="font-medium">Compatibility</h4>
+                        <h4 className="font-medium">Layout</h4>
                         <p className="text-sm text-soft-black/70">
-                            {product.details.compatibility.join(', ')}
+                            {product.keyboardCase.layout}
                         </p>
                     </div>
                     <div>
-                        <h4 className="font-medium">Material</h4>
-                        <p className="text-sm text-soft-black/70">{product.details.material}</p>
+                        <h4 className="font-medium">Wood Options</h4>
+                        <div className="space-y-1">
+                            {product.keyboardCase.woodOptions.map((wood) => (
+                                <p key={wood.name} className="text-sm text-soft-black/70">
+                                    {wood.name} (+£{wood.priceModifier})
+                                </p>
+                            ))}
+                        </div>
                     </div>
-                    {product.details.syntax && (
-                        <div>
-                            <h4 className="font-medium">Syntax</h4>
-                            <code className="block rounded bg-soft-black/5 p-2 text-sm">
-                                {product.details.syntax}
-                            </code>
+                    <div>
+                        <h4 className="font-medium">Available Switches</h4>
+                        <div className="space-y-1">
+                            {product.switches.map((switch_) => (
+                                <p key={switch_} className="text-sm text-soft-black/70">
+                                    {switch_}
+                                </p>
+                            ))}
                         </div>
-                    )}
-                    {product.details.codeTheme && (
-                        <div>
-                            <h4 className="font-medium">Theme</h4>
-                            <p className="text-sm text-soft-black/70">{product.details.codeTheme}</p>
+                    </div>
+                    <div>
+                        <h4 className="font-medium">Features</h4>
+                        <div className="space-y-1">
+                            {product.features.map((feature) => (
+                                <p key={feature} className="text-sm text-soft-black/70">
+                                    • {feature}
+                                </p>
+                            ))}
                         </div>
-                    )}
-                    <button className="w-full rounded-md bg-walnut px-4 py-2 text-cream hover:bg-walnut/90">
+                    </div>
+                    <button
+                        onClick={handleAddToCart}
+                        className="w-full rounded-md bg-walnut px-4 py-2 text-cream hover:bg-walnut/90"
+                    >
                         <span className="flex items-center justify-center gap-2">
                             <ShoppingCart className="h-4 w-4" />
                             Add to Cart
