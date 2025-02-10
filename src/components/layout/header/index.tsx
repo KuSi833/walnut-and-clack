@@ -1,10 +1,23 @@
 import Link from 'next/link'
 import { SITE_CONFIG } from '@/lib/constants/config'
+import { Store, Hammer, ShoppingCart } from 'lucide-react'
 
 const navigationItems = [
-    { name: 'Products', href: '/products' },
-    { name: 'Custom', href: '/custom' },
-    { name: 'Cart', href: '/cart' },
+    {
+        name: 'Store',
+        href: '/products',
+        icon: Store
+    },
+    {
+        name: 'Custom',
+        href: '/custom',
+        icon: Hammer
+    },
+    {
+        name: 'Cart',
+        href: '/cart',
+        icon: ShoppingCart
+    },
 ]
 
 export function Header() {
@@ -22,9 +35,10 @@ export function Header() {
                         <Link
                             key={item.href}
                             href={item.href}
-                            className="text-soft-black/80 hover:text-walnut transition-colors"
+                            className="flex items-center gap-2 text-soft-black/80 hover:text-walnut transition-colors"
                         >
-                            {item.name}
+                            <item.icon className="h-5 w-5" />
+                            <span>{item.name}</span>
                         </Link>
                     ))}
                 </nav>
