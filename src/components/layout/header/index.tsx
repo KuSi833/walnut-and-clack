@@ -35,11 +35,11 @@ export function Header() {
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-walnut-200 bg-cream-50/95 backdrop-blur supports-[backdrop-filter]:bg-cream-50/60">
-            <div className="container flex h-16 items-center justify-between">
+            <div className="container flex h-14 items-center justify-between">
                 <Link href="/" className="flex items-center space-x-2">
-                    <Terminal className="h-6 w-6 text-walnut-800" />
-                    <span className="font-mono text-sm font-bold tracking-wider text-walnut-900">
-                        {SITE_CONFIG.name}
+                    <Terminal className="h-5 w-5 text-walnut-800" />
+                    <span className="font-mono text-sm tracking-wider text-walnut-900">
+                        {SITE_CONFIG.name.toLowerCase()}
                     </span>
                 </Link>
                 <nav className="flex items-center gap-6">
