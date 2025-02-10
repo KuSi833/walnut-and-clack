@@ -22,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${firaCode.className} flex min-h-screen flex-col bg-cream text-soft-black`}>
+      <body className={`${firaCode.className} flex min-h-screen flex-col bg-cream-100 text-walnut-900`}>
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
