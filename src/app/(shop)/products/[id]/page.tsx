@@ -20,6 +20,18 @@ interface SpecsType {
     features: string[];
 }
 
+interface CartItem {
+    id: string
+    name: string
+    price: number
+    woodOption: {
+        name: string
+        priceModifier: number
+    }
+    switchType: string
+    image: string
+}
+
 const formatJSON = (obj: SpecsType) => {
     const jsonString = JSON.stringify(obj, null, 4);
     return jsonString.split('\n').map(line => {
@@ -53,6 +65,32 @@ export default function ProductPage({ params }: ProductPageProps) {
         base_price: product.price,
         features: product.details.features
     };
+
+    const handleAddToCart = () => {
+        const selectedWoodOption = product.details.woodOptions.find(w => w.name === selectedWood)
+        if (!selectedWoodOption) return
+
+        const cartItem: CartItem = {
+            id: product.id,
+            name: product.name,
+            price: product.price + selectedWoodOption.priceModifier,
+            woodOption: {
+                name: selectedWood,
+                priceModifier: selectedWoodOption.priceModifier
+            },
+            switchType: selectedSwitch,
+            image: product.images.thumbnail
+        }
+
+        // Get existing cart
+        const existingCart = JSON.parse(localStorage.getItem('cart') || '[]')
+
+        // Add new item
+        localStorage.setItem('cart', JSON.stringify([...existingCart, cartItem]))
+
+        // Force a page refresh to update the cart count in the header
+        window.location.reload()
+    }
 
     return (
         <div className="container py-8 font-mono">
@@ -148,7 +186,10 @@ export default function ProductPage({ params }: ProductPageProps) {
                         </div>
                     </div>
 
-                    <button className="w-full rounded-lg bg-walnut-500 px-4 py-3 font-medium text-neutral-50 transition-colors hover:bg-walnut-700">
+                    <button
+                        onClick={handleAddToCart}
+                        className="w-full rounded-lg bg-walnut-500 px-4 py-3 font-medium text-neutral-50 transition-colors hover:bg-walnut-700"
+                    >
                         Add to Cart
                     </button>
                 </div>
