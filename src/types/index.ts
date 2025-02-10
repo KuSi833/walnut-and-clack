@@ -39,15 +39,25 @@ export type User = {
   email: string
   name?: string
   orders: Order[]
+  cart: CartItem[]
 }
 
 export type Order = {
   id: string
   userId: string
-  products: KeyboardCaseBuild[]
+  items: OrderItem[]
   status: 'pending' | 'processing' | 'shipped' | 'delivered'
   createdAt: Date
   total: number
+}
+
+export type OrderItem = {
+  id: string
+  orderId: string
+  buildId: string
+  quantity: number
+  priceAtPurchase: number
+  build: KeyboardCaseBuild
 }
 
 export type CartItem = {

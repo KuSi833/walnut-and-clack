@@ -71,12 +71,15 @@ export function Header() {
                     ))}
                     {session ? (
                         <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2 font-mono text-sm text-walnut-800">
+                            <Link
+                                href="/profile"
+                                className="flex items-center gap-2 font-mono text-sm text-walnut-800 transition-colors hover:text-walnut-900"
+                            >
                                 <User className="h-5 w-5" />
                                 <span className="hidden sm:inline-block">
                                     {session.user?.name}
                                 </span>
-                            </div>
+                            </Link>
                             <button
                                 onClick={handleSignOut}
                                 className="flex items-center gap-2 font-mono text-sm text-walnut-800 transition-colors hover:text-walnut-900"

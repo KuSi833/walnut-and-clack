@@ -10,6 +10,7 @@ interface CartContextType {
     refreshCart: () => Promise<void>
     addToCart: (build: KeyboardCaseBuild) => Promise<void>
     removeFromCart: (buildId: string) => Promise<void>
+    clearCart: () => void
 }
 
 const CartContext = createContext<CartContextType>({
@@ -17,7 +18,8 @@ const CartContext = createContext<CartContextType>({
     itemCount: 0,
     refreshCart: async () => { },
     addToCart: async () => { },
-    removeFromCart: async () => { }
+    removeFromCart: async () => { },
+    clearCart: () => { }
 })
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -100,6 +102,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const clearCart = () => {
+        setItems([])
+    }
+
     useEffect(() => {
         refreshCart()
     }, [session])
@@ -109,7 +115,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         itemCount: items.length,
         refreshCart,
         addToCart,
-        removeFromCart
+        removeFromCart,
+        clearCart
     }
 
     return (
