@@ -1,17 +1,17 @@
-import { KeyboardBuild } from "@/types";
+import { KeyboardBuildTemplate } from "@/types";
 
-export const keyboards_cases: KeyboardBuild[] = [
+export const keyboards_cases: KeyboardBuildTemplate[] = [
     {
         id: 'cascade',
         name: 'The Cascade',
-        productType: 'keyboard-build',
+        productType: 'keyboard-build-template',
         description: 'Inspired by the flowing lines of Pacific Northwest waterfalls, this 65% keyboard brings nature to your desk.',
         price: 249.99,
         images: {
             thumbnail: '/products/kb1.png',
             full: ['/products/kb1.png']
         },
-        keyboardCase: {
+        availableCases: [{
             productType: 'case',
             layout: '65%',
             woodOptions: [
@@ -31,8 +31,8 @@ export const keyboards_cases: KeyboardBuild[] = [
                     priceModifier: 30
                 }
             ]
-        },
-        switches: ['Cherry MX Brown', 'Cherry MX Blue', 'Cherry MX Red'],
+        }],
+        availableSwitches: ['Cherry MX Brown', 'Cherry MX Blue', 'Cherry MX Red'],
         features: [
             'Hot-swappable switches',
             'USB-C connection',
@@ -44,14 +44,14 @@ export const keyboards_cases: KeyboardBuild[] = [
     {
         id: 'summit',
         name: 'The Summit', 
-        productType: 'keyboard-build',
+        productType: 'keyboard-build-template',
         description: 'A TKL masterpiece that represents the peak of wooden keyboard craftsmanship.',
         price: 299.99,
         images: {
             thumbnail: '/products/kb2.png',
             full: ['/products/kb2.png']
         },
-        keyboardCase: {
+        availableCases: [{
             productType: 'case',
             layout: 'TKL',
             woodOptions: [
@@ -71,8 +71,8 @@ export const keyboards_cases: KeyboardBuild[] = [
                     priceModifier: 50
                 }
             ]
-        },
-        switches: ['Cherry MX Brown', 'Cherry MX Blue', 'Cherry MX Red'],
+        }],
+        availableSwitches: ['Cherry MX Brown', 'Cherry MX Blue', 'Cherry MX Red'],
         features: [
             'Hot-swappable switches',
             'USB-C connection',

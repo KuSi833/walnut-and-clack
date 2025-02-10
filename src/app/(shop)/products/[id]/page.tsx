@@ -7,7 +7,7 @@ import { keyboards_cases } from '@/data/products'
 import { Terminal, ChevronRight, ArrowLeft } from 'lucide-react'
 import { useState, use } from 'react'
 import { cn } from '@/lib/utils'
-import { CartItem, KeyboardBuild, KeyboardSwitch } from '@/types'
+import { CartItem, KeyboardBuildTemplate, KeyboardSwitch, ConfiguredKeyboardBuild, WoodOption } from '@/types'
 
 interface ProductPageProps {
     params: Promise<{
@@ -35,7 +35,7 @@ const formatJSON = (obj: SpecsType) => {
     }).join('\n');
 };
 
-const getProduct = (id: string): KeyboardBuild => {
+const getProduct = (id: string): KeyboardBuildTemplate => {
     const product = keyboards_cases.find(p => p.id === id)
     if (!product) notFound()
     return product
@@ -45,21 +45,28 @@ export default function ProductPage({ params }: ProductPageProps) {
     const { id } = use(params)
     const product = getProduct(id)
 
-    const [selectedWood, setSelectedWood] = useState<string>(product.keyboardCase.woodOptions[0].name)
-    const [selectedSwitch, setSelectedSwitch] = useState<KeyboardSwitch>(product.switches[0])
+    const [selectedCase] = useState(product.availableCases[0])
+    const [selectedWood, setSelectedWood] = useState<string>(selectedCase.woodOptions[0].name)
+    const [selectedSwitch, setSelectedSwitch] = useState<KeyboardSwitch>(product.availableSwitches[0])
 
     const specs = {
-        layout: product.keyboardCase.layout,
+        layout: selectedCase.layout,
         base_price: product.price,
         features: product.features
     };
 
     const handleAddToCart = () => {
-        const selectedWoodOption = product.keyboardCase.woodOptions.find(w => w.name === selectedWood)
+        const selectedWoodOption = selectedCase.woodOptions.find((w: WoodOption) => w.name === selectedWood)
         if (!selectedWoodOption) return
 
         const cartItem: CartItem = {
-            product: product,
+            product: {
+                ...product,
+                productType: 'keyboard-build',
+                selectedCase,
+                selectedWoodOption,
+                selectedSwitch
+            } as ConfiguredKeyboardBuild,
             quantity: 1
         }
 
@@ -122,7 +129,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                         <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
                             <p className="mb-2 font-semibold text-walnut-700">$ ls ./wood-options/</p>
                             <div className="space-y-2">
-                                {product.keyboardCase.woodOptions.map((wood) => (
+                                {selectedCase.woodOptions.map((wood: WoodOption) => (
                                     <button
                                         key={wood.name}
                                         onClick={() => setSelectedWood(wood.name)}
@@ -148,7 +155,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                         <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
                             <p className="mb-2 font-semibold text-walnut-700">$ ls ./switches/</p>
                             <div className="space-y-1">
-                                {product.switches.map((switch_) => (
+                                {product.availableSwitches.map((switch_: KeyboardSwitch) => (
                                     <button
                                         key={switch_}
                                         onClick={() => setSelectedSwitch(switch_)}
