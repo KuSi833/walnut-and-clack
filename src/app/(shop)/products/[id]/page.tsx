@@ -181,35 +181,37 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
 
     return (
-        <div className="container py-8 font-mono">
-            <div className="flex justify-end mb-8">
+        <div className="container max-w-full px-4 py-6 md:py-8 font-mono">
+            <div className="flex justify-end mb-6 md:mb-8">
                 <Link
                     href="/products"
-                    className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-sm text-neutral-200 transition-colors hover:bg-neutral-700"
+                    className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 md:px-4 md:py-2 text-sm text-neutral-200 transition-colors hover:bg-neutral-700"
                 >
-                    <ArrowLeft className="h-4 w-4" />
+                    <ArrowLeft className="h-3.5 w-3.5 md:h-4 md:w-4" />
                     Back to Store
                 </Link>
             </div>
 
-            <div className="grid gap-8 lg:grid-cols-2">
+            <div className="grid gap-6 md:gap-8 lg:grid-cols-2">
                 {/* Image Section */}
-                <div className="relative aspect-square overflow-hidden rounded-lg border border-neutral-700 bg-neutral-800">
+                <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-neutral-700 bg-neutral-800">
                     <Image
                         src={caseDesign.images.full[0]}
                         alt={caseDesign.name}
                         fill
                         className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        priority
                     />
                 </div>
 
                 {/* Info Section */}
-                <div className="space-y-6 rounded-lg border border-neutral-700 bg-cream-100 p-6 shadow-lg relative z-30">
+                <div className="space-y-4 md:space-y-6 rounded-lg border border-neutral-700 bg-cream-100 p-4 md:p-6 shadow-lg relative z-30">
                     <div className="border-b border-neutral-700 pb-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Terminal className="h-5 w-5 text-walnut-800" />
-                                <h1 className="text-2xl font-bold text-walnut-800">{caseDesign.name}</h1>
+                                <Terminal className="h-4 w-4 md:h-5 md:w-5 text-walnut-800" />
+                                <h1 className="text-xl md:text-2xl font-bold text-walnut-800">{caseDesign.name}</h1>
                             </div>
                             <RatingDisplay
                                 rating={caseDesign.reviewStats.averageRating}
@@ -219,23 +221,23 @@ export default function ProductPage({ params }: ProductPageProps) {
                         </div>
                     </div>
 
-                    <div className="space-y-4 text-sm">
-                        <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
+                    <div className="space-y-3 md:space-y-4 text-sm">
+                        <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-3 md:p-4">
                             <p className="mb-2 font-semibold text-walnut-700">$ cat description.txt</p>
                             <p className="text-neutral-300">{caseDesign.description}</p>
                         </div>
 
-                        <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
+                        <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-3 md:p-4">
                             <p className="mb-2 font-semibold text-walnut-700">$ cat specs.json</p>
                             <pre
-                                className="overflow-x-auto rounded bg-neutral-950 p-3 text-neutral-400"
+                                className="overflow-x-auto rounded bg-neutral-950 p-2 md:p-3 text-neutral-400 text-xs md:text-sm"
                                 dangerouslySetInnerHTML={{
                                     __html: formatJSON(specs)
                                 }}
                             />
                         </div>
 
-                        <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-4">
+                        <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-3 md:p-4">
                             <p className="mb-2 font-semibold text-walnut-700">$ ls ./wood-options/</p>
                             <div className="space-y-2">
                                 {caseDesign.woodOptions.map((wood: WoodOption) => (
@@ -253,7 +255,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                                             <span className="font-medium text-neutral-200">{wood.name}</span>
                                             <p className="text-xs text-neutral-400">{wood.description}</p>
                                         </div>
-                                        <div className="font-mono text-sm text-walnut-700">
+                                        <div className="font-mono text-xs md:text-sm text-walnut-700 ml-2">
                                             +£{wood.priceModifier}
                                         </div>
                                     </button>
@@ -264,7 +266,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
                     <button
                         onClick={handleAddToCart}
-                        className="w-full rounded-lg bg-walnut-500 px-4 py-3 font-medium text-neutral-50 transition-colors hover:bg-walnut-700"
+                        className="w-full rounded-lg bg-walnut-500 px-3 py-2.5 md:px-4 md:py-3 font-medium text-neutral-50 transition-colors hover:bg-walnut-700"
                     >
                         Add to Cart (£{Number(caseDesign.price) + (selectedWood?.priceModifier || 0)})
                     </button>
@@ -272,9 +274,9 @@ export default function ProductPage({ params }: ProductPageProps) {
             </div>
 
             {/* Reviews Section */}
-            <div className="mt-12 space-y-6">
+            <div className="mt-8 md:mt-12 space-y-4 md:space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-walnut-800">Customer Reviews</h2>
+                    <h2 className="text-lg md:text-xl font-bold text-walnut-800">Customer Reviews</h2>
                     <RatingDisplay
                         rating={caseDesign.reviewStats.averageRating}
                         reviews={caseDesign.reviewStats.totalReviews}
