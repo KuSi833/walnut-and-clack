@@ -34,7 +34,11 @@ export const keyboards_cases: KeyboardCaseDesign[] = [
             'Foam dampened',
             'Brass weight'
         ],
-        tags: ['65%', 'premium', 'hot-swap']
+        tags: ['65%', 'premium', 'hot-swap'],
+        reviewStats: {
+            averageRating: 0,
+            totalReviews: 0
+        }
     },
     {
         id: 'summit',
@@ -69,6 +73,10 @@ export const keyboards_cases: KeyboardCaseDesign[] = [
             'Brass plate',
             'Magnetic feet for angle adjustment'
         ],
-        tags: ['TKL', 'premium', 'hot-swap']
+        tags: ['TKL', 'premium', 'hot-swap'],
+        reviewStats: {
+            averageRating: 0,
+            totalReviews: 0
+        }
     }
 ]

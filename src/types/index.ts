@@ -9,6 +9,10 @@ export type Product = {
     thumbnail: string
     full: string[]
   }
+  reviewStats: {
+    averageRating: number
+    totalReviews: number
+  }
 }
 
 export type WoodOption = {
@@ -66,4 +70,18 @@ export type CartItem = {
   buildId: string
   quantity: number
   build: KeyboardCaseBuild
+}
+
+export type Review = {
+  id: string
+  userId: string
+  user: User
+  productId: string
+  rating: number
+  title: string
+  content: string
+  createdAt: Date
+  updatedAt: Date
+  helpful: number
+  reported: boolean
 } 

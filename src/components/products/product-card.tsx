@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Star, Users } from 'lucide-react'
+import { Users } from 'lucide-react'
 import { KeyboardCaseDesign } from '@/types'
 
 interface ProductCardProps {
@@ -8,15 +8,18 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
-    // Check for images.full instead of images
     if (!product?.images?.full?.[0]) {
         console.warn(`No images found for product: ${product?.name}`)
         return null
     }
 
-    // Generate random review data (in a real app, this would come from the backend)
-    const reviewCount = Math.floor(Math.random() * 50) + 10
-    const rating = (Math.random() * 1 + 4).toFixed(1) // Random rating between 4.0 and 5.0
+    const { averageRating, totalReviews } = product.reviewStats
+
+    // Generate progress bar segments
+    const progressSegments = Array.from({ length: 5 }, (_, i) => {
+        const threshold = (i + 1) * 1 // Each segment represents 0.5 in the rating
+        return threshold <= averageRating
+    })
 
     return (
         <Link href={`/products/${product.id}`}>
@@ -31,22 +34,34 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                         priority
                     />
                 </div>
-                <div className="space-y-1.5 p-3">
+                <div className="space-y-2.5 p-3">
                     <div className="flex items-center justify-between gap-2">
                         <h3 className="font-medium text-walnut-900 line-clamp-1">{product.name}</h3>
                         <p className="whitespace-nowrap font-mono text-sm font-semibold text-walnut-800">
                             £{product.price}
                         </p>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-walnut-600">
-                        <div className="flex items-center gap-1">
-                            <Star className="h-3.5 w-3.5 fill-walnut-400 text-walnut-400" />
-                            <span>{rating}</span>
-                            <span className="text-walnut-400">·</span>
+
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-0.5 font-mono text-xs">
+                                {progressSegments.map((isFilled, index) => (
+                                    <span
+                                        key={index}
+                                        className={isFilled ? 'text-walnut-800' : 'text-walnut-200'}
+                                    >
+                                        ●
+                                    </span>
+                                ))}
+                                <span className="ml-2 text-walnut-800">{averageRating.toFixed(1)}</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-walnut-600">
                             <Users className="h-3.5 w-3.5" />
-                            <span>{reviewCount}</span>
+                            <span>{totalReviews}</span>
                         </div>
                     </div>
+
                     <div className="flex flex-wrap gap-1.5">
                         {product.features.slice(0, 2).map((feature) => (
                             <span
