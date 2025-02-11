@@ -9,7 +9,7 @@ export async function POST(request: Request) {
         const session = await getServerSession(authOptions)
         
         if (!session?.user?.email) {
-            logger.warn('Unauthorized attempt to add to cart')
+            logger.warn({ email: session?.user?.email }, 'Unauthorized attempt to add to cart')
             return new NextResponse('Unauthorized', { status: 401 })
         }
 
@@ -96,7 +96,7 @@ export async function GET() {
         const session = await getServerSession(authOptions)
         
         if (!session?.user?.email) {
-            logger.warn('Unauthorized attempt to fetch cart')
+            logger.warn({ email: session?.user?.email }, 'Unauthorized attempt to fetch cart')
             return new NextResponse('Unauthorized', { status: 401 })
         }
 

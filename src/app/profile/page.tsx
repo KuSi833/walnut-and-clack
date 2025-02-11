@@ -64,14 +64,14 @@ export default function ProfilePage() {
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-walnut-900">Your Profile</h1>
                 <p className="mt-2 text-walnut-600">
-                    Welcome back, {session.user.name || session.user.email}
+                    Welcome back, {session.user?.name || session.user?.email}
                 </p>
             </div>
 
             <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-walnut-900">Order History</h2>
                 {orders.length === 0 ? (
-                    <p className="text-walnut-600">You haven't placed any orders yet.</p>
+                    <p className="text-walnut-600">You haven&apos;t placed any orders yet.</p>
                 ) : (
                     <div className="space-y-6">
                         {orders.map((order) => (

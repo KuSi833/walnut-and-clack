@@ -32,6 +32,21 @@
             },
             "isBackground": true,
             "problemMatcher": []
+        },
+        {
+            "label": "Deploy",
+            "type": "shell",
+            "command": "sh deploy.sh",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            },
+            "icon": {
+                "color": "terminal.ansiGreen",
+                "id": "rocket"
+            },
+            "problemMatcher": []
         }
     ]
 }

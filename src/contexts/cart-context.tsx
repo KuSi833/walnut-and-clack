@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { CartItem, KeyboardCaseBuild } from '@/types'
 
@@ -11,6 +11,11 @@ interface CartContextType {
     addToCart: (build: KeyboardCaseBuild) => Promise<void>
     removeFromCart: (buildId: string) => Promise<void>
     clearCart: () => void
+}
+
+interface SessionUser {
+    id: string;
+    // Add other user properties if needed
 }
 
 const CartContext = createContext<CartContextType>({
@@ -26,7 +31,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([])
     const { data: session } = useSession()
 
-    async function refreshCart() {
+    const refreshCart = useCallback(async () => {
         if (!session?.user) {
             setItems([])
             return
@@ -41,7 +46,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             console.error('Error fetching cart:', error)
             setItems([])
         }
-    }
+    }, [session?.user])
 
     const addToCart = async (build: KeyboardCaseBuild) => {
         if (!session?.user) return
@@ -49,7 +54,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         // Optimistically add to local state
         const optimisticItem: CartItem = {
             id: `temp-${Date.now()}`,
-            userId: (session.user as any).id,
+            userId: (session.user as SessionUser).id,
             buildId: build.id,
             quantity: 1,
             build
@@ -110,7 +115,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         refreshCart()
-    }, [session])
+    }, [refreshCart])
 
     const value = {
         items,

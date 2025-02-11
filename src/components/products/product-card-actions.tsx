@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { KeyboardBuild } from '@/types'
+import { KeyboardCaseBuild, WoodOption } from '@/types'
 import { ChevronDown, ShoppingCart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ProductCardActionsProps {
-    product: KeyboardBuild
+    product: KeyboardCaseBuild
 }
 
 export const ProductCardActions = ({ product }: ProductCardActionsProps) => {
@@ -18,7 +18,7 @@ export const ProductCardActions = ({ product }: ProductCardActionsProps) => {
 
     const handleAddToCart = () => {
         const cartItem = {
-            product: product,
+            build: product,
             quantity: 1
         }
 
@@ -35,7 +35,7 @@ export const ProductCardActions = ({ product }: ProductCardActionsProps) => {
     return (
         <>
             <div className="mt-2 flex items-center justify-between">
-                <span className="text-lg font-bold">£{product.price}</span>
+                <span className="text-lg font-bold">£{product.totalPrice}</span>
                 <button
                     onClick={handleToggle}
                     className="flex items-center gap-1 text-sm text-walnut"
@@ -53,13 +53,13 @@ export const ProductCardActions = ({ product }: ProductCardActionsProps) => {
                     <div>
                         <h4 className="font-medium">Layout</h4>
                         <p className="text-sm text-soft-black/70">
-                            {product.keyboardCase.layout}
+                            {product.caseDesign.layout}
                         </p>
                     </div>
                     <div>
                         <h4 className="font-medium">Wood Options</h4>
                         <div className="space-y-1">
-                            {product.keyboardCase.woodOptions.map((wood) => (
+                            {product.caseDesign.woodOptions.map((wood: WoodOption) => (
                                 <p key={wood.name} className="text-sm text-soft-black/70">
                                     {wood.name} (+£{wood.priceModifier})
                                 </p>
@@ -67,19 +67,9 @@ export const ProductCardActions = ({ product }: ProductCardActionsProps) => {
                         </div>
                     </div>
                     <div>
-                        <h4 className="font-medium">Available Switches</h4>
-                        <div className="space-y-1">
-                            {product.switches.map((switch_) => (
-                                <p key={switch_} className="text-sm text-soft-black/70">
-                                    {switch_}
-                                </p>
-                            ))}
-                        </div>
-                    </div>
-                    <div>
                         <h4 className="font-medium">Features</h4>
                         <div className="space-y-1">
-                            {product.features.map((feature) => (
+                            {product.caseDesign.features.map((feature: string) => (
                                 <p key={feature} className="text-sm text-soft-black/70">
                                     • {feature}
                                 </p>
