@@ -49,7 +49,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         // Optimistically add to local state
         const optimisticItem: CartItem = {
             id: `temp-${Date.now()}`,
-            userId: (session.user as any).id, // Type assertion for now - should be properly typed in auth configuration
+            userId: (session.user as any).id,
             buildId: build.id,
             quantity: 1,
             build
@@ -64,8 +64,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    buildId: build.id,
-                    quantity: 1
+                    caseDesignId: build.caseDesign.id,
+                    selectedWoodOption: build.selectedWoodOption,
+                    totalPrice: build.totalPrice
                 }),
             })
 
@@ -77,6 +78,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             console.error('Error adding to cart:', error)
             // Revert optimistic update on error
             setItems(prev => prev.filter(item => item.id !== optimisticItem.id))
+            throw error // Re-throw to let the component handle the error
         }
     }
 

@@ -1,22 +1,22 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-
-const prisma = new PrismaClient()
+import logger from '@/lib/logger'
 
 export async function DELETE(
     request: Request,
-    context: { params: { buildId: string } }
+    context: { params: Promise<{ buildId: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions)
         
         if (!session?.user?.email) {
+            logger.warn({ email: session?.user?.email }, 'Unauthorized attempt to remove from cart')
             return new NextResponse('Unauthorized', { status: 401 })
         }
 
-        const buildId = context.params.buildId
+        const { buildId } = await context.params
 
         // Get user
         const user = await prisma.user.findUnique({
@@ -26,10 +26,11 @@ export async function DELETE(
         })
 
         if (!user) {
+            logger.error({ email: session.user.email }, 'User not found')
             return new NextResponse('User not found', { status: 404 })
         }
 
-        // Delete the cart item
+        // Delete cart item
         await prisma.cartItem.deleteMany({
             where: {
                 userId: user.id,
@@ -37,9 +38,13 @@ export async function DELETE(
             }
         })
 
+        logger.info({ userId: user.id, buildId }, 'Successfully removed item from cart')
         return new NextResponse(null, { status: 204 })
     } catch (error) {
-        console.error('Error deleting from cart:', error)
+        logger.error({ 
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error removing from cart')
         return new NextResponse('Internal Error', { status: 500 })
     }
 } 

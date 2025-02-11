@@ -3,13 +3,14 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Terminal, ArrowLeft } from 'lucide-react'
+import { Terminal, ArrowLeft, Users } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { KeyboardCaseDesign, WoodOption } from '@/types'
+import { KeyboardCaseDesign, WoodOption, Review, KeyboardCaseBuild } from '@/types'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/contexts/cart-context'
+import { ReviewsList } from '@/components/products/reviews-list'
 
 interface ProductPageProps {
     params: Promise<{ id: string }>
@@ -42,24 +43,38 @@ export default function ProductPage({ params }: ProductPageProps) {
     const [selectedWood, setSelectedWood] = useState<WoodOption | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [reviews, setReviews] = useState<Review[]>([])
     const { addToCart } = useCart()
 
     useEffect(() => {
-        const fetchProduct = async () => {
+        const fetchData = async () => {
             try {
                 const { id } = await params
-                const response = await fetch(`/api/products/${id}`)
-                if (!response.ok) {
-                    if (response.status === 404) {
+                const [productResponse, reviewsResponse] = await Promise.all([
+                    fetch(`/api/products/${id}`),
+                    fetch(`/api/products/${id}/reviews`)
+                ])
+
+                if (!productResponse.ok) {
+                    if (productResponse.status === 404) {
                         notFound()
                     }
                     throw new Error('Failed to fetch product')
                 }
-                const data = await response.json()
-                setCaseDesign(data)
+
+                if (!reviewsResponse.ok) {
+                    throw new Error('Failed to fetch reviews')
+                }
+
+                const productData = await productResponse.json()
+                const reviewsData = await reviewsResponse.json()
+
+                setCaseDesign(productData)
+                setReviews(reviewsData)
+
                 // Set the default wood option
-                if (data.woodOptions && data.woodOptions.length > 0) {
-                    setSelectedWood(data.woodOptions[0])
+                if (productData.woodOptions && productData.woodOptions.length > 0) {
+                    setSelectedWood(productData.woodOptions[0])
                 }
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'An error occurred')
@@ -67,8 +82,9 @@ export default function ProductPage({ params }: ProductPageProps) {
                 setIsLoading(false)
             }
         }
-        fetchProduct()
-    }, [params]) // Keep params in deps array as it's stable
+
+        fetchData()
+    }, [params])
 
     if (isLoading) {
         return (
@@ -109,24 +125,13 @@ export default function ProductPage({ params }: ProductPageProps) {
         if (!selectedWood || !caseDesign) return
 
         try {
-            // Create a keyboard case build
-            const response = await fetch('/api/builds', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    caseDesignId: caseDesign.id,
-                    selectedWoodOption: selectedWood,
-                    totalPrice: Number(caseDesign.price) + selectedWood.priceModifier,
-                }),
-            })
-
-            if (!response.ok) {
-                throw new Error('Failed to create build')
+            // Create the build object with all required data
+            const build: KeyboardCaseBuild = {
+                id: `temp-${Date.now()}`, // Temporary ID, will be replaced by server
+                caseDesign: caseDesign,
+                selectedWoodOption: selectedWood,
+                totalPrice: Number(caseDesign.price) + selectedWood.priceModifier,
             }
-
-            const build = await response.json()
 
             // Add to cart with optimistic updates
             await addToCart(build)
@@ -134,6 +139,45 @@ export default function ProductPage({ params }: ProductPageProps) {
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to add to cart')
         }
+    }
+
+    const RatingDisplay = ({ rating, reviews, compact = false }: {
+        rating: number,
+        reviews: number,
+        compact?: boolean
+    }) => {
+        const progressSegments = Array.from({ length: 5 }, (_, i) => {
+            const threshold = (i + 1) * 1
+            return threshold <= rating
+        })
+
+        return (
+            <div className={cn(
+                "flex items-center",
+                compact ? "gap-2" : "gap-4"
+            )}>
+                <div className="flex items-center gap-2">
+                    <div className={cn(
+                        "flex items-center gap-0.5 font-mono",
+                        compact ? "text-xs" : "text-sm"
+                    )}>
+                        {progressSegments.map((isFilled, index) => (
+                            <span
+                                key={index}
+                                className={isFilled ? 'text-walnut-800' : 'text-walnut-200'}
+                            >
+                                ●
+                            </span>
+                        ))}
+                        <span className="ml-2 text-walnut-800">{rating.toFixed(1)}</span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-walnut-600">
+                    <Users className={cn("text-walnut-600", compact ? "h-3 w-3" : "h-3.5 w-3.5")} />
+                    <span>{reviews}</span>
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -161,9 +205,18 @@ export default function ProductPage({ params }: ProductPageProps) {
 
                 {/* Info Section */}
                 <div className="space-y-6 rounded-lg border border-neutral-700 bg-cream-100 p-6 shadow-lg relative z-30">
-                    <div className="flex items-center gap-2 border-b border-neutral-700 pb-4">
-                        <Terminal className="h-5 w-5 text-walnut-800" />
-                        <h1 className="text-2xl font-bold text-walnut-800">{caseDesign.name}</h1>
+                    <div className="border-b border-neutral-700 pb-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Terminal className="h-5 w-5 text-walnut-800" />
+                                <h1 className="text-2xl font-bold text-walnut-800">{caseDesign.name}</h1>
+                            </div>
+                            <RatingDisplay
+                                rating={caseDesign.reviewStats.averageRating}
+                                reviews={caseDesign.reviewStats.totalReviews}
+                                compact={true}
+                            />
+                        </div>
                     </div>
 
                     <div className="space-y-4 text-sm">
@@ -216,6 +269,18 @@ export default function ProductPage({ params }: ProductPageProps) {
                         Add to Cart (£{Number(caseDesign.price) + (selectedWood?.priceModifier || 0)})
                     </button>
                 </div>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="mt-12 space-y-6">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-walnut-800">Customer Reviews</h2>
+                    <RatingDisplay
+                        rating={caseDesign.reviewStats.averageRating}
+                        reviews={caseDesign.reviewStats.totalReviews}
+                    />
+                </div>
+                <ReviewsList reviews={reviews} />
             </div>
         </div>
     )
