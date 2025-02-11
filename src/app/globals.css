@@ -21,6 +21,30 @@
 }
 
 @layer utilities {
+  @keyframes orb1 {
+    0% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-10%, 5%);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  @keyframes orb2 {
+    0% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(5%, -5%);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
   .grain {
     position: relative;
     min-height: 100vh;
@@ -48,6 +72,7 @@
       );
     pointer-events: none;
     z-index: 1;
+    animation: orb1 15s ease-in-out infinite, orb2 20s ease-in-out infinite;
   }
 
   .grain::before {
