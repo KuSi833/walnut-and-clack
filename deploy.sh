@@ -13,22 +13,21 @@ echo "Copying files to server..."
 ssh phantom "mkdir -p ~/walnut-and-clack"
 rsync -av --exclude 'node_modules' --exclude '.git' --exclude '.next' ./ phantom:~/walnut-and-clack/
 
-# Deploy
-echo "Deploying application..."
-ssh phantom << 'ENDSSH'
-set -e  # Exit on any error
+# Create a temporary script for remote execution
+REMOTE_SCRIPT=$(cat << 'EOF'
 cd ~/walnut-and-clack
 docker-compose pull || true
 docker-compose down
-
-# Build and check for errors
 if ! docker-compose up -d --build; then
     echo "Error: Deployment failed!"
     exit 1
 fi
-ENDSSH
+EOF
+)
 
-if [ $? -eq 0 ]; then
+# Deploy
+echo "Deploying application..."
+if echo "$REMOTE_SCRIPT" | ssh phantom 'bash -s'; then
     echo "✅ Deployment completed successfully!"
 else
     echo "❌ Deployment failed!"

@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  app:
+  walnut:
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,10 +13,11 @@ services:
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && npm run start"
     depends_on:
       - db
     networks:
-      - nginx-proxy
+      - portainer_proxy_net
       - internal
 
   db:
@@ -34,7 +35,7 @@ services:
       - internal
 
 networks:
-  nginx-proxy:
+  portainer_proxy_net:
     external: true
   internal:
     driver: bridge
